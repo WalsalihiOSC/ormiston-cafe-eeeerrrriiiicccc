@@ -1,50 +1,73 @@
-from tkinter import *
-from tkinter import ttk
-from tkinter import messagebox
+try:
+    import tkinter as tk                # python 3
+    from tkinter import font as tkfont  # python 3
+except ImportError:
+    import Tkinter as tk     # python 2
+    import tkFont as tkfont  # python 2
 
-root = Tk()
-root.title("Ormiston Cafe")
-root.geometry("500x500")
+class SampleApp(tk.Tk):
 
-# Create tabs
-notebook = ttk.Notebook(root)
-notebook.pack(pady=5)
+    def __init__(self, *args, **kwargs):
+        tk.Tk.__init__(self, *args, **kwargs)
 
-# Create two frames
-currency_frame = Frame(notebook, width=480, height=480)
-conversion_frame = Frame(notebook, width=480, height=480)
+        self.title_font = tkfont.Font(family='Helvetica', size=18, weight="bold", slant="italic")
 
-currency_frame.pack(fill="both", expand=1)
-conversion_frame.pack(fill="both", expand=1)
+        container = tk.Frame(self)
+        container.pack(side="top", fill="both", expand=True)
+        container.grid_rowconfigure(0, weight=1)
+        container.grid_columnconfigure(0, weight=1)
 
-class OrmistonCafepg1:
-    def __init__(self, parent):
-        self.parent = parent
+        self.frames = {}
+        for F in (StartPage, PageOne, PageTwo):
+            page_name = F.__name__
+            frame = F(parent=container, controller=self)
+            self.frames[page_name] = frame
 
-    home = LabelFrame(currency_frame, text="Order Now")
-    home.pack(pady=20)
-    
-    home_button = Button(home, font=("Helvetica", 24))
-    home_button.pack(pady=10, padx=10)
+            frame.grid(row=0, column=0, sticky="nsew")
 
-class OrmistonCafepg2:
-    def __init__(self, parent):
-        self.parent = parent
+        self.show_frame("StartPage")
 
-    home = LabelFrame(currency_frame, text="Order Now")
-    home.pack(pady=20)
+    def show_frame(self, page_name):
+        frame = self.frames[page_name]
+        frame.tkraise()
 
-    home_button = Button(home, font=("Helvetica", 24))
-    home_button.pack(pady=10, padx=10)
 
-class OrmistonCafepg3:
-    def __init__(self, parent):
-        self.parent = parent
+class StartPage(tk.Frame):
 
-    home = LabelFrame(currency_frame, text="Order Now")
-    home.pack(pady=20)
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        self.controller = controller
+        label = tk.Label(self, text="This is the start page", font=controller.title_font)
+        label.pack(side="top", fill="x", pady=10)
 
-    home_button = Button(home, font=("Helvetica", 24))
-    home_button.pack(pady=10, padx=10)
+        button1 = tk.Button(self, text="Go to Page One", command=lambda: controller.show_frame("PageOne"))
+        button2 = tk.Button(self, text="Go to Page Two", command=lambda: controller.show_frame("PageTwo"))
+        button1.pack()
+        button2.pack()
 
-root.mainloop()
+
+class PageOne(tk.Frame):
+
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        self.controller = controller
+        label = tk.Label(self, text="Order", font=controller.title_font)
+        label.pack(side="top", fill="x", pady=10)
+        button = tk.Button(self, text="Go to the start page", command=lambda: controller.show_frame("StartPage"))
+        button.pack()
+
+
+class PageTwo(tk.Frame):
+
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        self.controller = controller
+        label = tk.Label(self, text="page 2", font=controller.title_font)
+        label.pack(side="top", fill="x", pady=10)
+        button = tk.Button(self, text="Go to the start page", command=lambda: controller.show_frame("StartPage"))
+        button.pack()
+
+
+if __name__ == "__main__":
+    app = SampleApp()
+    app.mainloop()
